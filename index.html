@@ -10,6 +10,24 @@
     .stars{position:fixed;inset:0;background:radial-gradient(1px 1px at 10% 20%,#fff,transparent),radial-gradient(2px 2px at 40% 50%,#fff,transparent);background-size:200% 200%;animation:drift 100s linear infinite;z-index:-1;}
     @keyframes drift{from{background-position:0 0} to{background-position:200% 200%;}}
 
+    /* SLOW CURSOR TRAIL */
+    .trail { position: fixed; pointer-events: none; font-size: 26px; z-index: 9999; animation: floatUp 2.5s forwards; }
+    @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-80px) scale(2); } }
+
+    /* PASSPORT SIDEBAR */
+    #passport-container {
+        position: fixed; left: 15px; top: 50%; transform: translateY(-50%); width: 55px;
+        background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid #ff69b4;
+        border-radius: 30px; display: flex; flex-direction: column; align-items: center; padding: 15px 0;
+        z-index: 2500; transition: width 0.3s; overflow: hidden;
+    }
+    #passport-container:hover { width: 180px; }
+    .passport-label { font-size: 0.6rem; color: #ff69b4; margin-bottom: 10px; opacity: 0; white-space: nowrap; font-weight: bold; }
+    #passport-container:hover .passport-label { opacity: 1; }
+    .stamp { width: 38px; height: 38px; margin: 8px 0; border-radius: 50%; border: 2px dashed rgba(255, 105, 180, 0.2);
+        display: flex; align-items: center; justify-content: center; font-size: 1.1rem; filter: grayscale(1) opacity(0.2); transition: all 0.5s; }
+    .stamp.unlocked { filter: grayscale(0) opacity(1); border: 2px solid #ff69b4; transform: rotate(-15deg); background: rgba(255, 105, 180, 0.1); }
+
     /* INTERFACE */
     .meter-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: 250px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; border: 1px solid #ff69b4; z-index: 2000; }
     .meter-fill { width: 0%; height: 100%; background: #ff69b4; border-radius: 10px; transition: 1.2s; box-shadow: 0 0 10px #ff69b4; }
@@ -52,11 +70,45 @@
     .unwrapped .reveal-gift { opacity: 1; transform: scale(1.3); z-index: 4; }
 
     .modal{position:fixed; inset:0; background:rgba(0,0,0,0.95); display:none; align-items:center; justify-content:center; z-index:4000;}
+
+    /* THE END SCREEN */
+    #end-screen {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle, #0b1023 0%, #050714 100%);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 5000;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 2s;
+    }
 </style>
 </head>
 <body>
 <div class="stars"></div>
 <audio id="bgm" loop><source src="bollywood-love.mp3" type="audio/mpeg"></audio>
+
+<div id="passport-container">
+    <div class="passport-label">FROOTI'S TRAVELS</div>
+    <div id="stamp-0" class="stamp unlocked" title="Departure">🛫</div>
+    <div id="stamp-1" class="stamp" title="Check-in">💖</div>
+    <div id="stamp-2" class="stamp" title="Flight">✈️</div>
+    <div id="stamp-3" class="stamp" title="Quiz Master">🧠</div>
+    <div id="stamp-4" class="stamp" title="Secret Seeker">💌</div>
+    <div id="stamp-5" class="stamp" title="XOXO Winner">⭕</div>
+    <div id="stamp-6" class="stamp" title="Love Note">📜</div>
+    <div id="stamp-7" class="stamp" title="Sentence">💭</div>
+    <div id="stamp-8" class="stamp" title="Shrinker">🌍</div>
+    <div id="stamp-9" class="stamp" title="Flag Match">💚</div>
+    <div id="stamp-10" class="stamp" title="Decoder">🫂</div>
+    <div id="stamp-11" class="stamp" title="Planner">🍜</div>
+    <div id="stamp-12" class="stamp" title="Quiet Moment">🌙</div>
+    <div id="stamp-13" class="stamp" title="Heart Path">🐘</div>
+    <div id="stamp-14" class="stamp" title="Arrival">🏁</div>
+</div>
 
 <div class="meter-container"><div class="meter-fill" id="loveMeter"></div></div>
 <div class="clock-container">
@@ -67,6 +119,15 @@
 
 <div class="reel" id="reel">
     <section class="frame"><div class="text" id="typewriter"></div><button class="btn-opt" style="width:180px" onclick="unlockNext()">Enter the Quest</button></section>
+
+    <section class="frame">
+        <div class="text">Before we begin…</div>
+        <div class="box">
+            <p style="margin-bottom:15px">What should I call you?</p>
+            <input id="nameInput" type="text" placeholder="Your name 💖" style="width:100%; padding:12px; border-radius:30px; border:1px solid #ff69b4; background:transparent; color:#fff; text-align:center; font-family:inherit; outline:none;" />
+            <button class="btn-opt" style="margin-top:20px" onclick="saveName()">Continue</button>
+        </div>
+    </section>
 
     <section class="frame">
         <div class="text">Connecting Our Worlds 🌍</div>
@@ -112,12 +173,67 @@
     </section>
 
     <section class="frame">
-        <div class="text">Why I Love You 💌</div>
+        <div class="text">Why I Love You/ What I love about you 💌</div>
         <div class="box">
             <p id="reasonDisplay" style="font-style: italic; min-height: 60px;">Click for a reason...</p>
             <button class="btn-opt" onclick="genReason()">Generate New Note</button>
             <button class="btn-opt" style="border-style:dashed" onclick="unlockNext()">Go to Finale</button>
         </div>
+    </section>
+
+    <section class="frame">
+        <div class="text">Finish the sentence 💭</div>
+        <div class="box">
+            <p>I feel safest when you…</p>
+            <button class="btn-opt" onclick="finishSentence()">Smile at me</button>
+            <button class="btn-opt" onclick="finishSentence()">Call me</button>
+            <button class="btn-opt" onclick="finishSentence()">Just exist</button>
+            <p id="sentenceResult" style="margin-top:15px;color:#ff69b4"></p>
+        </div>
+    </section>
+
+    <section class="frame">
+        <div class="text">Closing the distance 🌍</div>
+        <p id="distanceText" style="font-size:1.5rem;margin-top:10px">12,000 km apart</p>
+        <button class="btn-opt" onclick="shrinkDistance()">Bring us closer</button>
+    </section>
+
+    <section class="frame">
+        <div class="text">Red Flag or Green Flag 🚩💚</div>
+        <div class="box">
+            <p id="flagPrompt">Steals hoodies</p>
+            <button class="btn-opt" onclick="flagChoice()">🚩</button>
+            <button class="btn-opt" onclick="flagChoice()">💚</button>
+            <p id="flagResult" style="margin-top:10px"></p>
+        </div>
+    </section>
+
+    <section class="frame">
+        <div class="text">Emoji Decode 💌</div>
+        <div style="font-size:2.5rem;margin-bottom:15px">✈️🌍🫂❤️</div>
+        <button class="btn-opt" onclick="decodeEmoji()">Decode</button>
+        <p id="emojiResult" style="margin-top:10px"></p>
+    </section>
+
+    <section class="frame">
+        <div class="text">Plan our date 🍿🍜</div>
+        <div class="box">
+            <button class="btn-opt" onclick="saveDate()">Food 🍕</button>
+            <button class="btn-opt" onclick="saveDate()">Movie 🎬</button>
+            <button class="btn-opt" onclick="saveDate()">Time 🌙</button>
+            <p id="dateResult" style="margin-top:10px;color:#ff69b4"></p>
+        </div>
+    </section>
+
+    <section class="frame">
+        <div class="text">Hey…</div>
+        <p style="max-width:650px;margin-top:20px;line-height:1.6">
+            I know this distance isn’t easy.<br>
+            Some days are heavier than others.<br><br>
+            But you’re never doing this alone.<br>
+            I’m always right here.
+        </p>
+        <button class="btn-opt" onclick="unlockNext()" style="margin-top:30px;opacity:0.7">Continue</button>
     </section>
 
     <section class="frame" id="pathFrame">
@@ -131,9 +247,19 @@
         <div class="text">Happy Birthday! 🎁</div>
         <div class="gift-container" id="gift" onclick="unwrap()">
             <div class="gift-lid"></div><div class="gift-box"></div>
-            <div class="reveal-gift">Happy Birthday, Farhat! 🎂 <br> Love knows no distance. ❤️</div>
+            <div class="reveal-gift">Happy Birthday, FROOTO! 🎂 <br> Love knows no distance. ❤️</div>
         </div>
     </section>
+</div>
+
+<div id="end-screen">
+    <div class="text" style="font-size: 4rem; color: #ff69b4;">The End</div>
+    <p style="font-size: 1.5rem; max-width: 600px; margin-top: 20px; line-height: 1.6;">
+        Our journey is just beginning. <br>
+        Thank you for playing, FROOTI. <br>
+        I love you endlessly. ❤️
+    </p>
+    <button class="btn-opt" style="width: 200px; margin-top: 50px;" onclick="location.reload()">Replay Quest 🔄</button>
 </div>
 
 <div class="modal" id="modal"><div style="background:#0b1023; padding:40px; border-radius:20px; border:2px solid #ff69b4; text-align:center;"><p id="modalMsg"></p><br><button onclick="closeModal()" style="color:#ff69b4; background:none; border:none; cursor:pointer; font-weight:bold;">Next</button></div></div>
@@ -144,6 +270,20 @@
     const meter = document.getElementById('loveMeter');
     let canScroll = false;
     let currentLevel = 0;
+    let lastTrailTime = 0;
+
+    // SLOW ELEPHANT TRAIL
+    document.addEventListener('mousemove', (e) => {
+        const now = Date.now();
+        if (now - lastTrailTime < 60) return;
+        lastTrailTime = now;
+        const t = document.createElement('div');
+        t.className = 'trail';
+        t.innerText = Math.random() > 0.5 ? '🐘' : '💖';
+        t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px';
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2500);
+    });
 
     document.body.addEventListener('click',()=>bgm.play().catch(()=>{}),{once:true});
 
@@ -154,9 +294,14 @@
         }
     });
 
+    // UPDATED UNLOCK LOGIC WITH PASSPORT STAMPS
     function unlockNext() {
         canScroll = true;
         currentLevel++;
+        // Apply Stamp
+        const stamp = document.getElementById(`stamp-${currentLevel}`);
+        if(stamp) stamp.classList.add('unlocked');
+
         reel.style.overflowY = "scroll";
         reel.scrollTo({ top: currentLevel * window.innerHeight, behavior: 'smooth' });
         
@@ -185,9 +330,7 @@
         document.getElementById('start-btn').style.display = 'none';
         p.style.display = 'block';
         s.innerText = "Traveling across the world... ✈️";
-        
         p.animate([{ offsetDistance: "0%" }, { offsetDistance: "100%" }], { duration: 4500, easing: 'ease-in-out', fill: 'forwards' });
-        
         setTimeout(() => { 
             s.innerText = "Wishes Delivered to Vadodara! 💖"; 
             updateMeter(15); 
@@ -211,19 +354,16 @@
     }
     loadQuiz();
 
-    // SCRATCH CARDS (ROBUST VERSION)
+    // SCRATCH CARDS
     let scratchCounts = [0, 0, 0];
     document.querySelectorAll('.scratch-canvas').forEach((cvs, idx) => {
         const ctx = cvs.getContext('2d'); ctx.fillStyle = '#888'; ctx.fillRect(0,0,130,130); ctx.globalCompositeOperation = 'destination-out';
-        
         const scratchFunc = (e) => {
             const r = cvs.getBoundingClientRect();
             const x = (e.clientX || e.touches?.[0].clientX) - r.left;
             const y = (e.clientY || e.touches?.[0].clientY) - r.top;
             ctx.beginPath(); ctx.arc(x, y, 18, 0, Math.PI*2); ctx.fill();
-            
             scratchCounts[idx]++;
-            // After enough scratching, show the button
             if (scratchCounts.every(count => count > 50)) {
                 document.getElementById('scratch-unlock-btn').style.display = 'block';
                 document.getElementById('scratch-hint').style.display = 'none';
@@ -257,7 +397,7 @@
     function checkW(p) { return [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(s => s.every(i => bt[i] === p)); }
 
     // LOVE NOTES
-    const reasons = ["Your heart.", "The way you care.", "Your contagious laugh.", "Everything about you."];
+    const reasons = ["Your heart.", "The way you care.", "Your contagious laugh.", "Everything about you.", "Your Kind Soul", "Inner child in that lives in you"];
     function genReason() { document.getElementById('reasonDisplay').innerText = reasons[Math.floor(Math.random()*reasons.length)]; }
 
     // HEART PATH
@@ -280,12 +420,36 @@
         updateMeter(90); setTimeout(unlockNext, 3000);
     }
 
-    // HELPERS
+    // MODAL
     let sn = false;
     function reveal(m, s) { document.getElementById('modalMsg').innerText = m; document.getElementById('modal').style.display = 'flex'; sn = s; }
     function closeModal() { document.getElementById('modal').style.display = 'none'; if(sn) unlockNext(); }
     function updateMeter(v) { meter.style.width = v + '%'; }
-    function unwrap() { document.getElementById('gift').classList.add('unwrapped'); updateMeter(100); }
+    
+    // UPDATED UNWRAP LOGIC WITH THE END SCREEN
+    function unwrap() { 
+        document.getElementById('gift').classList.add('unwrapped'); 
+        updateMeter(100); 
+        document.getElementById('stamp-14').classList.add('unlocked');
+        setTimeout(() => {
+            const end = document.getElementById('end-screen');
+            end.style.display = 'flex';
+            setTimeout(() => end.style.opacity = "1", 100);
+        }, 3000);
+    }
+
+    // MINI GAMES
+    function finishSentence(){ document.getElementById("sentenceResult").innerText = "That’s when I fall for you all over again."; updateMeter(5); setTimeout(unlockNext, 1200); }
+    let dist = 12000;
+    function shrinkDistance(){ dist -= 4000; document.getElementById("distanceText").innerText = dist <= 0 ? "0 km. I’m right here ❤️" : dist + " km apart"; updateMeter(5); if(dist <= 0) setTimeout(unlockNext, 1200); }
+    function flagChoice(){ document.getElementById("flagResult").innerText = "Correct. I love everything about you."; updateMeter(5); setTimeout(unlockNext, 1200); }
+    function decodeEmoji(){ document.getElementById("emojiResult").innerText = "No matter the distance, I just want to hold you."; updateMeter(5); setTimeout(unlockNext, 1200); }
+    function saveDate(){ document.getElementById("dateResult").innerText = "Saved. We’re doing this soon 💖"; updateMeter(10); setTimeout(unlockNext, 1200); }
+
+    // NAME PERSONALIZATION
+    let herName = localStorage.getItem("herName") || "";
+    function saveName(){ const input = document.getElementById("nameInput").value.trim(); if(input.length){ herName = input; localStorage.setItem("herName", herName); } unlockNext(); }
+
 </script>
 </body>
 </html>
